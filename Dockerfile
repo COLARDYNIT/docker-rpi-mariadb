@@ -1,16 +1,8 @@
 # Pull base image
 FROM resin/rpi-raspbian:jessie
-MAINTAINER Toni Hermoso Pulido <toniher@cau.cat>
 
 # add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
-RUN groupadd -r mysql && useradd -r -g mysql mysql
-
-# FATAL ERROR: please install the following Perl modules before executing /usr/local/mysql/scripts/mysql_install_db:
-# File::Basename
-# File::Copy
-# Sys::Hostname
-# Data::Dumper
-RUN apt-get update && apt-get install -y perl --no-install-recommends && rm -rf /var/lib/apt/lists/*
+RUN groupadd -r mysql && useradd -r -g mysql mysql && apt-get update && apt-get install -y perl --no-install-recommends && rm -rf /var/lib/apt/lists/*
 
 ENV MYSQL_VERSION 10.0
 
@@ -24,10 +16,10 @@ RUN { \
 	} | debconf-set-selections \
 	&& apt-get update && apt-get install -y mariadb-server="${MYSQL_VERSION}"* && rm -rf /var/lib/apt/lists/* \
 	&& rm -rf /var/lib/mysql && mkdir -p /var/lib/mysql && chown -R mysql:mysql /var/lib/mysql
+	&& sed -Ei 's/^(bind-address|log)/#&/' /etc/mysql/my.cnf
 
-# comment out a few problematic configuration values
-RUN sed -Ei 's/^(bind-address|log)/#&/' /etc/mysql/my.cnf
 
+COPY bind.cnf /etc/mysql/conf.d/bind.cnf
 COPY socket.cnf /etc/mysql/conf.d/socket.cnf
 
 # prepare directory for PID
