@@ -15,11 +15,11 @@ RUN { \
 		echo mysql-server mysql-server/remove-test-db select false; \
 	} | debconf-set-selections \
 	&& apt-get update && apt-get install -y mariadb-server="${MYSQL_VERSION}"* && rm -rf /var/lib/apt/lists/* \
-	&& rm -rf /var/lib/mysql && mkdir -p /var/lib/mysql && chown -R mysql:mysql /var/lib/mysql
-	&& sed -Ei 's/^(bind-address|log)/#&/' /etc/mysql/my.cnf
+	&& rm -rf /var/lib/mysql && mkdir -p /var/lib/mysql && chown -R mysql:mysql /var/lib/mysql && sed -Ei 's/^(bind-address|log)/#&/' /etc/mysql/my.cnf
 
 
 COPY bind.cnf /etc/mysql/conf.d/bind.cnf
+
 COPY socket.cnf /etc/mysql/conf.d/socket.cnf
 
 # prepare directory for PID
